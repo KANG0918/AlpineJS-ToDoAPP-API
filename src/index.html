@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-50">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TODO App</title>
+    <link rel="stylesheet" href="styles/style.css" />
+    <script src="scripts/todo.js" defer type="module"></script>
+  </head>
+
+  <body x-data class="container flex flex-col gap-4 px-2 py-4 mx-auto">
+   
+    <header class="banner">
+      <h1><a href="#todo" class="taskLink">TODO!</a></h1>
+      <div class="subtitle">
+        <p class="text">Simple and Studid TODO App</p>
+        <p class="hidden text sm:block">
+          proudly powered by
+          <a href="https://5xcampus.com" class="text-link" target="_blank"
+            >5XCAMPUS</a
+          >
+          |
+          <a href="https://todoo.5xcamp.us" class="text-link" target="_blank"
+            >API</a
+          >
+          |
+          <a
+            href="https://github.com/5xTraining/todoo-app"
+            class="text-link"
+            target="_blank"
+            >SOURCE</a
+          >
+        </p>
+      </div>
+    </header>
+
+    <template x-data="message" @notice.window="handleNotice" x-if="show">
+      <nav  class="bg-blue-300 px-4 py-4 text-white mt-2 select-none flex justify-between">
+        <span x-text="content"></span>
+        <button @click="close">X</button>
+      </nav>
+    </template>
+
+    <main class="px-6 todo-app main">
+      <header>
+        <nav class="navbar">
+          <a class="loginLink" href="#login">登入</a>
+          <a class="signUpLink" href="#sign_up">註冊</a>
+        </nav>
+      </header>
+
+      <section id="userSection" x-data="user">
+        <!-- Login Section start -->
+        <template x-if="status == 'LOGIN'">
+          <section id="loginSection">
+            <h1>登入</h1>
+            <form id="loginForm">
+              <div class="field">
+                <label>
+                  <h3>Email</h3>
+                  <input
+                    x-model="email"
+                    type="email"
+                    id="loginEmail"
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder="Email 信箱"
+                  />
+                </label>
+              </div>
+  
+              <div class="field">
+                <label>
+                  <h3>密碼</h3>
+                  <input
+                    x-model="password"
+                    type="password"
+                    id="loginPassword"
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder="密碼，至少需要 6 個字"
+                  />
+                </label>
+              </div>
+  
+              <div class="items-center justify-between block sm:flex field">
+                <button @click.prevent="login">登入</button>
+                <div class="text-xl text-gray-600">
+                  還沒有帳號嗎？<a href="#" class="text-link signUpLink" @click.prevent="showSignUp">註冊</a
+                  >一個吧！
+                </div>
+              </div>
+            </form>
+          </section>
+        </template>
+        <!-- Login Section end -->
+
+        <!-- Sign Up Section start -->
+        <template x-if="status == 'SIGNUP'">
+          <section id="signUpSection">
+            <h1>註冊帳號</h1>
+            <form id="signUpForm">
+              <div class="field">
+                <label>
+                  <h3>Email</h3>
+                  <input
+                    x-model="email"
+                    type="email"
+                    id="signUpEmail"
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder="Email 信箱"
+                  />
+                </label>
+              </div>
+  
+              <div class="field">
+                <label>
+                  <h3>暱稱</h3>
+                  <input
+                    x-model="nickname"
+                    type="text"
+                    id="signUpNickname"
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder="要怎麼稱呼你呢？"
+                  />
+                </label>
+              </div>
+  
+              <div class="field">
+                <label>
+                  <h3>密碼</h3>
+                  <input
+                    x-model="password"
+                    type="password"
+                    id="signUpPassword"
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder="密碼，至少需要 6 個字"
+                  />
+                </label>
+              </div>
+  
+              <div class="items-center justify-between block sm:flex field">
+                <button @click.prevent="signUp">註冊</button>
+                <div class="text-xl text-gray-600">
+                  已經有帳號了？<a href="#" class="text-link loginLink" @click.prevent="showLogin">登入</a>
+                </div>
+              </div>
+            </form>
+          </section>
+        </template>
+      <!-- Sign Up Section end -->
+      </section>
+      <!-- TODO Section start -->
+      <template x-data="task" x-if="show" @show_task.window="handleEvent">
+        <section id="taskSection">
+          <form id="todoForm">
+            <input
+              type="text"
+              x-model="task"
+              id="taskInput"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="做點重要的事吧..."
+            />
+            <button id="addTodoBtn" @click.prevent="addTask">新增</button>
+          </form>
+        </section>
+      </template>
+    <!-- TODO Section end -->
+    </main>
+
+    
+    <section class="todo-list" x-data="todo" @show_todo.window="loginShowTodo">
+      <ul class="items">
+          <template x-for="(todo, indx) in todos"  @add.window="getTodos">
+              <li>
+                  <div class="item-content">
+                      <label>
+                          <input type="checkbox" />
+                          <p class="content" x-show="!todo.isEditing" x-text="todo.content"></p>
+                          <input type="text" x-show="todo.isEditing" x-model="todo.content" @keydown.enter="saveEdit(indx)" class="edit-input" :id="'editInput' + indx">
+                      </label>
+                  </div>
+                  <div class="item-control">
+                      <a href="#" class="edit" @click.prevent="toggleEdit(indx)">
+                          <img class="icon" src="assets/pen-to-square-solid.svg" alt="edit" />
+                      </a>
+                      <a href="#" class="delete" @click.prevent="removeTodo(indx)">
+                          <img class="icon" src="assets/trash-can-solid.svg" alt="delete" />
+                      </a>
+                  </div>
+              </li>
+          </template>
+      </ul>
+  </section>
+    
+    
+    <footer>
+      <p>
+        powered by
+        <a href="https://5xcampus.com" class="underline">5XCAMPUS</a> |
+        <a href="https://todoo.5xcamp.us" class="underline">API</a> |
+        <a href="https://github.com/5xTraining/todoo-app" class="underline"
+          >SOURCE</a
+        >
+      </p>
+    </footer>
+  </body>
+</html>
